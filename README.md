@@ -17,6 +17,7 @@ It's not a finalized solution. Most of the time was spent on Mapbox to make it w
 
 * Fix requirement to interact with map to see updates to charts 
 * Better styling
+* Add debounce on onViewportChange
 * Maybe show "Drag the map to populate results"
 * Update project structure, split into components
 * Add tests

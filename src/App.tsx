@@ -74,7 +74,7 @@ const App: React.FC<{
 }> = ({ setFeatures, features }) => {
   const [viewport, setViewport] = useState({
     width: 800,
-    height: 790,
+    height: 800,
     latitude: -28.016666,
     longitude: 153.399994,
     zoom: 8,
@@ -167,7 +167,7 @@ const App: React.FC<{
         </ReactMapGL>
       </div>
       <div style={{ width: "50%", padding: "20px" }}>
-        <div>Drag the map to populate results</div>
+        <div style={{ paddingBottom: "20px" }}>Drag the map to populate results</div>
         <button onClick={() => setFilterMaterial(null)} type="button">
           Reset Materials
         </button>
