@@ -1,10 +1,6 @@
-import { init, RematchDispatch, RematchRootState } from "@rematch/core";
-import { models, RootModel } from "./models";
+import { createStore } from "redux";
+import { rootReducer } from "./rootReducer";
 
-export const store = init({
-  models,
-});
+export const store = createStore(rootReducer);
 
 export type Store = typeof store;
-export type Dispatch = RematchDispatch<RootModel>;
-export type RootState = RematchRootState<RootModel>;
