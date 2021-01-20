@@ -1,5 +1,8 @@
+import { TypedUseSelectorHook, useSelector } from "react-redux";
+
 import { ActionTypes } from "../actions";
 import { Feature } from "../types";
+import { RootState } from "../rootReducer";
 import { handleActions } from "redux-actions";
 
 type FeaturesState = {
@@ -9,6 +12,8 @@ type FeaturesState = {
 const FEATURES_DEFAULT_STATE: FeaturesState = {
   features: [],
 };
+
+export const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 export const featuresReducer = handleActions<FeaturesState, Feature[]>(
   {

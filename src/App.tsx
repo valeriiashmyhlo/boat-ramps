@@ -4,16 +4,25 @@ import "./App.css";
 import { Action, setFeatures } from "./actions";
 import { Feature, MaterialCounts, Optional, SizeCounts } from "./types";
 import React, { Dispatch, useCallback, useState } from "react";
-import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 
 import { ChartSection } from "./components/chartSection";
 import { Map } from "./components/mapSection";
 import { RootState } from "./rootReducer";
+import { createSelector } from "reselect";
+import { useDispatch } from "react-redux";
+import { useTypedSelector } from "./reducers/features.reducer";
 
-export const useStateSelector: TypedUseSelectorHook<RootState> = useSelector;
+const featuresSelector = (s: RootState) => s.features.features;
 
-const countMaterial = (data: Feature[]): MaterialCounts => {
-  const materials = data.map((item) => item.properties.material);
+const materialsSelector = createSelector(featuresSelector, (data) =>
+  data.map((item) => item.properties.material)
+);
+
+const areaSelector = createSelector(featuresSelector, (data) =>
+  data.map((item) => item.properties.area_)
+);
+
+const materialCountSelector = createSelector(materialsSelector, (materials) => {
   const counts: MaterialCounts = {};
 
   for (const m of materials) {
@@ -23,10 +32,9 @@ const countMaterial = (data: Feature[]): MaterialCounts => {
     counts[m] += 1;
   }
   return counts;
-};
+});
 
-const countSize = (data: Feature[]): SizeCounts => {
-  const areas = data.map((item) => item.properties.area_);
+const sizeCountSelector = createSelector(areaSelector, (areas) => {
   const counts: SizeCounts = {
     "[0, 50]": {
       range: [0, 50],
@@ -52,7 +60,7 @@ const countSize = (data: Feature[]): SizeCounts => {
   }
 
   return counts;
-};
+});
 
 const getMapboxFilter = (
   filterMaterial: Optional<string>,
@@ -71,21 +79,21 @@ const getMapboxFilter = (
 };
 
 const App: React.FC = () => {
-  const features = useStateSelector((s) => s.features.features);
+  const materialCounts = useTypedSelector(materialCountSelector);
+  const sizeCounts = useTypedSelector(sizeCountSelector);
+
   const dispatch = useDispatch<Dispatch<Action>>();
   const dispatchFeatures = useCallback((features) => dispatch(setFeatures(features)), [dispatch]);
-  const [filterMaterial, setFilterMaterial] = useState<Optional<string>>(null);
-  const [filterSize, setFilterSize] = useState<Optional<[number, number]>>(null);
-  const materialsCounts = countMaterial(features);
-  const sizeCounts = countSize(features);
+  const [materialFilter, setMaterialFilter] = useState<Optional<string>>(null);
+  const [sizeFilter, setSizeFilter] = useState<Optional<[number, number]>>(null);
 
   return (
     <div className="App">
-      <Map setFeatures={dispatchFeatures} filter={getMapboxFilter(filterMaterial, filterSize)} />
+      <Map setFeatures={dispatchFeatures} filter={getMapboxFilter(materialFilter, sizeFilter)} />
       <ChartSection
-        setFilterMaterial={setFilterMaterial}
-        setFilterSize={setFilterSize}
-        materialsCounts={materialsCounts}
+        setFilterMaterial={setMaterialFilter}
+        setFilterSize={setSizeFilter}
+        materialsCounts={materialCounts}
         sizeCounts={sizeCounts}
       />
     </div>
