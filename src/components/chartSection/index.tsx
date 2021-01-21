@@ -1,7 +1,18 @@
 import { Doughnut, HorizontalBar } from "react-chartjs-2";
 import { MaterialCounts, Optional, SizeCounts } from "../../types";
+import { percent, px } from "csx";
 
 import React from "react";
+import { style } from "typestyle";
+
+const chartContainer = style({
+  width: percent(50),
+  padding: px(20),
+});
+
+const mb20 = style({
+  marginBottom: px(20),
+});
 
 const ChartSection: React.FC<{
   setFilterMaterial: (filterMaterial: Optional<string>) => void;
@@ -47,8 +58,8 @@ const ChartSection: React.FC<{
   };
 
   return (
-    <div style={{ width: "50%", padding: "20px" }}>
-      <div style={{ paddingBottom: "20px" }}>Drag the map to populate results</div>
+    <div className={chartContainer}>
+      <div className={mb20}>Drag the map to populate results</div>
       <button onClick={() => setFilterMaterial(null)} type="button">
         Reset Materials
       </button>

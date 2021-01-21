@@ -2,15 +2,21 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import "./App.css";
 
 import { Action, setFeatures } from "./actions";
-import { Feature, MaterialCounts, Optional, SizeCounts } from "./types";
+import { MaterialCounts, Optional, SizeCounts } from "./types";
 import React, { Dispatch, useCallback, useState } from "react";
 
 import { ChartSection } from "./components/chartSection";
 import { Map } from "./components/mapSection";
 import { RootState } from "./rootReducer";
 import { createSelector } from "reselect";
+import { style } from "typestyle";
 import { useDispatch } from "react-redux";
 import { useTypedSelector } from "./reducers/features.reducer";
+
+const app = style({
+  display: "flex",
+  textAlign: "center",
+});
 
 const featuresSelector = (s: RootState) => s.features.features;
 
@@ -88,7 +94,7 @@ const App: React.FC = () => {
   const [sizeFilter, setSizeFilter] = useState<Optional<[number, number]>>(null);
 
   return (
-    <div className="App">
+    <div className={app}>
       <Map setFeatures={dispatchFeatures} filter={getMapboxFilter(materialFilter, sizeFilter)} />
       <ChartSection
         setFilterMaterial={setMaterialFilter}
