@@ -10,17 +10,15 @@
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.53",
     "@types/react-dom": "^16.9.8",
-    "chart.js": "^2.9.4",
     "csx": "^10.0.2",
-    "json-loader": "^0.5.7",
     "mapbox-gl": "^1.13.0",
     "react": "^17.0.1",
-    "react-chartjs-2": "^2.11.1",
     "react-dom": "^17.0.1",
     "react-map-gl": "^5.2.10",
     "react-mapbox-gl": "^5.0.0",
     "react-redux": "^7.2.2",
     "react-scripts": "4.0.1",
+    "react-vis": "^1.11.7",
     "redux": "^4.0.5",
     "redux-actions": "^2.6.5",
     "reselect": "^4.0.0",
@@ -54,6 +52,7 @@
   "devDependencies": {
     "@types/react-map-gl": "^5.2.9",
     "@types/react-redux": "^7.1.11",
+    "@types/react-vis": "^1.11.5",
     "@types/redux-actions": "^2.6.1",
     "prettier": "2.2.0"
   }

@@ -45,24 +45,31 @@ const sizeCountSelector = createSelector(areaSelector, (areas) => {
     "[0, 50]": {
       range: [0, 50],
       value: 0,
+      color: "#1a3177",
     },
     "[50, 200]": {
       range: [50, 200],
       value: 0,
+      color: "#79c7e3",
     },
     "[200, 526]": {
       range: [200, 526],
       value: 0,
+      color: "#119399",
     },
   };
 
   for (const a of areas) {
-    for (const k of Object.keys(counts)) {
+    for (const k in counts) {
       const [min, max] = counts[k].range;
       if (min < a && a <= max) {
         counts[k].value += 1;
       }
     }
+  }
+
+  for (const k in counts) {
+    if (counts[k].value === 0) delete counts[k];
   }
 
   return counts;

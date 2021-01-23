@@ -9,6 +9,8 @@ export interface Feature extends mapboxgl.MapboxGeoJSONFeature {
 
 export type Optional<T> = T | null;
 
-export type SizeCounts = { [key: string]: { range: [number, number]; value: number } };
+export type SizeCounts = {
+  [key: string]: { range: [number, number]; value: number; color?: string };
+};
 
 export type MaterialCounts = { [key: string]: number };
