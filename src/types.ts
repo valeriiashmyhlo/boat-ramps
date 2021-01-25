@@ -1,6 +1,10 @@
 import mapboxgl from "mapbox-gl";
 
 export interface Feature extends mapboxgl.MapboxGeoJSONFeature {
+  geometry: mapboxgl.MapboxGeoJSONFeature["geometry"] & {
+    type: "MultiPolygon";
+    coordinates: [];
+  };
   properties: {
     material: string;
     area_: number;

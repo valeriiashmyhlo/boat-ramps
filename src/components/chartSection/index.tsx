@@ -14,10 +14,15 @@ const mb20 = style({
   marginBottom: px(20),
 });
 
+const RadialChartWrap = style({
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+});
+
 const radialChartStyles = style({
   position: "relative",
   padding: "30px",
-  margin: "0 auto",
 });
 
 const barChartStyles = style({
@@ -106,44 +111,46 @@ const ChartSection: React.FC<{
       >
         Reset Range
       </button>
-      <RadialChart
-        animation
-        onValueClick={(datapoint) => {
-          setFilterSize(sizeCounts[datapoint.label!].range);
-          setRange(datapoint.label!);
-        }}
-        data={sizesChartData}
-        width={300}
-        height={300}
-        innerRadius={80}
-        radius={150}
-        padAngle={0.02}
-        colorType="literal"
-        labelsRadiusMultiplier={1.2}
-        className={radialChartStyles}
-      >
-        <>
-          <div className={radialChartLabel}>
-            {selectedRange}
-            <br />
-            <>sizes shown</>
-          </div>
-        </>
-      </RadialChart>
-      <div>
-        {Object.keys(sizeCounts).map((k) => (
-          <div key={k} className={chartAnnotation}>
-            <span
-              style={{
-                display: "block",
-                width: "10px",
-                height: "10px",
-                backgroundColor: sizeCounts[k].color,
-              }}
-            />
-            - {k}
-          </div>
-        ))}
+      <div className={RadialChartWrap}>
+        <RadialChart
+          animation
+          onValueClick={(datapoint) => {
+            setFilterSize(sizeCounts[datapoint.label!].range);
+            setRange(datapoint.label!);
+          }}
+          data={sizesChartData}
+          width={300}
+          height={300}
+          innerRadius={80}
+          radius={150}
+          padAngle={0.02}
+          colorType="literal"
+          labelsRadiusMultiplier={1.2}
+          className={radialChartStyles}
+        >
+          <>
+            <div className={radialChartLabel}>
+              {selectedRange}
+              <br />
+              <>sizes shown</>
+            </div>
+          </>
+        </RadialChart>
+        <div>
+          {Object.keys(sizeCounts).map((k) => (
+            <div key={k} className={chartAnnotation}>
+              <span
+                style={{
+                  display: "block",
+                  width: "10px",
+                  height: "10px",
+                  backgroundColor: sizeCounts[k].color,
+                }}
+              />
+              - {k}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -2,10 +2,11 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import "./App.css";
 
 import { Action, setFeatures } from "./actions";
-import { MaterialCounts, Optional, SizeCounts } from "./types";
-import React, { Dispatch, useCallback, useState } from "react";
+import { Feature, MaterialCounts, Optional, SizeCounts } from "./types";
+import React, { Dispatch, useCallback, useEffect, useState } from "react";
 
 import { ChartSection } from "./components/chartSection";
+import { LngLatBounds } from "mapbox-gl";
 import { Map } from "./components/mapSection";
 import { RootState } from "./rootReducer";
 import { createSelector } from "reselect";
@@ -18,27 +19,53 @@ const app = style({
   textAlign: "center",
 });
 
-const featuresSelector = (s: RootState) => s.features.features;
+type Filters = {
+  size: Optional<[number, number]>;
+  material: Optional<string>;
+  mapBounds: Optional<LngLatBounds>;
+};
 
-const materialsSelector = createSelector(featuresSelector, (data) =>
+const filteredFeaturesSelector = createSelector(
+  (s: RootState) => s.features.features,
+  (_: RootState, filters: Filters) => filters,
+  (features, filters) => {
+    const { size, material, mapBounds } = filters;
+
+    if (size) {
+      features = features.filter(
+        (d) => size[0] <= d.properties.area_ && d.properties.area_ <= size[1]
+      );
+    }
+
+    if (material) {
+      features = features.filter((f) => f.properties.material === material);
+    }
+
+    if (mapBounds) {
+      features = features.filter((f) => mapBounds.contains(f.geometry.coordinates[0][0][0]));
+    }
+
+    return features;
+  }
+);
+
+const materialsSelector = createSelector(filteredFeaturesSelector, (data) =>
   data.map((item) => item.properties.material)
 );
 
-const areaSelector = createSelector(featuresSelector, (data) =>
+const areaSelector = createSelector(filteredFeaturesSelector, (data) =>
   data.map((item) => item.properties.area_)
 );
 
-const materialCountSelector = createSelector(materialsSelector, (materials) => {
-  const counts: MaterialCounts = {};
-
-  for (const m of materials) {
-    if (!(m in counts)) {
-      counts[m] = 0;
-    }
-    counts[m] += 1;
-  }
-  return counts;
-});
+const materialCountSelector = createSelector(materialsSelector, (materials) =>
+  materials.reduce(
+    (counts: MaterialCounts, m) => ({
+      ...counts,
+      [m]: m in counts ? counts[m] + 1 : 1,
+    }),
+    {}
+  )
+);
 
 const sizeCountSelector = createSelector(areaSelector, (areas) => {
   const counts: SizeCounts = {
@@ -75,34 +102,45 @@ const sizeCountSelector = createSelector(areaSelector, (areas) => {
   return counts;
 });
 
-const getMapboxFilter = (
-  filterMaterial: Optional<string>,
-  filterSize: Optional<[number, number]>
-): any[] => {
-  const filters: any[] = ["all"];
+const fetchFeatures = async (): Promise<Feature[]> => {
+  try {
+    const response = await fetch("./boat_ramps.geojson");
+    const { features } = await response.json();
 
-  if (filterSize) {
-    filters.push(["<=", filterSize[0], ["get", "area_"]], ["<=", ["get", "area_"], filterSize[1]]);
+    return features;
+  } catch (error) {
+    throw error;
   }
-  if (filterMaterial) {
-    filters.push(["==", ["get", "material"], filterMaterial]);
-  }
-
-  return filters;
 };
 
 const App: React.FC = () => {
-  const materialCounts = useTypedSelector(materialCountSelector);
-  const sizeCounts = useTypedSelector(sizeCountSelector);
-
   const dispatch = useDispatch<Dispatch<Action>>();
   const dispatchFeatures = useCallback((features) => dispatch(setFeatures(features)), [dispatch]);
   const [materialFilter, setMaterialFilter] = useState<Optional<string>>(null);
   const [sizeFilter, setSizeFilter] = useState<Optional<[number, number]>>(null);
+  const [viewportFilter, setViewportFilter] = useState<Optional<LngLatBounds>>(null);
+
+  const filters = {
+    size: sizeFilter,
+    material: materialFilter,
+    mapBounds: viewportFilter,
+  };
+
+  const features = useTypedSelector((s) => filteredFeaturesSelector(s, filters));
+  const materialCounts = useTypedSelector((s) => materialCountSelector(s, filters));
+  const sizeCounts = useTypedSelector((s) => sizeCountSelector(s, filters));
+
+  //Todo: useDeepEffect
+  useEffect(() => {
+    (async () => {
+      const features = await fetchFeatures();
+      dispatchFeatures(features);
+    })();
+  }, []);
 
   return (
     <div className={app}>
-      <Map setFeatures={dispatchFeatures} filter={getMapboxFilter(materialFilter, sizeFilter)} />
+      <Map data={features} onBoundsChange={setViewportFilter} />
       <ChartSection
         setFilterMaterial={setMaterialFilter}
         setFilterSize={setSizeFilter}

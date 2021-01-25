@@ -2,12 +2,12 @@ import React, { useRef, useState } from "react";
 import ReactMapGL, { InteractiveMap, Layer, Source } from "react-map-gl";
 
 import { Feature } from "../../types";
-import mapboxgl from "mapbox-gl";
+import { LngLatBounds } from "mapbox-gl";
 
-const Map: React.FC<{ setFeatures: (features: Feature[]) => void; filter: any[] }> = ({
-  setFeatures,
-  filter,
-}) => {
+const Map: React.FC<{
+  data: Feature[];
+  onBoundsChange: (bounds: LngLatBounds) => void;
+}> = ({ data, onBoundsChange }) => {
   const ref = useRef<InteractiveMap>(null);
   const [viewport, setViewport] = useState({
     width: 800,
@@ -17,16 +17,9 @@ const Map: React.FC<{ setFeatures: (features: Feature[]) => void; filter: any[] 
     zoom: 8,
   });
 
-  const onViewportChange = () => {
-    if (ref.current && ref.current.getMap().getLayer("mapLayer")) {
-      const visibleFeatures: mapboxgl.MapboxGeoJSONFeature[] = ref.current.queryRenderedFeatures(
-        undefined,
-        { layers: ["mapLayer"] }
-      );
-
-      if (visibleFeatures.length > 0) {
-        setFeatures(visibleFeatures as Feature[]);
-      }
+  const onLoad = () => {
+    if (ref.current) {
+      onBoundsChange(ref.current.getMap().getBounds());
     }
   };
 
@@ -36,13 +29,18 @@ const Map: React.FC<{ setFeatures: (features: Feature[]) => void; filter: any[] 
       mapStyle="mapbox://styles/mapbox/light-v9"
       {...viewport}
       mapboxApiAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
-      onLoad={onViewportChange}
+      onLoad={onLoad}
       onViewportChange={(newViewport) => {
-        onViewportChange();
+        onLoad();
         setViewport(newViewport);
       }}
     >
-      <Source id="goldCoast" type="geojson" data="./boat_ramps.geojson" tolerance={0.00001} />
+      <Source
+        id="goldCoast"
+        type="geojson"
+        data={{ type: "FeatureCollection", features: data }}
+        tolerance={0.00001}
+      />
       <Layer
         id="mapLayer"
         type="symbol"
@@ -52,7 +50,6 @@ const Map: React.FC<{ setFeatures: (features: Feature[]) => void; filter: any[] 
           "icon-padding": 0,
           "icon-allow-overlap": true,
         }}
-        filter={filter}
         source="goldCoast"
       />
     </ReactMapGL>
