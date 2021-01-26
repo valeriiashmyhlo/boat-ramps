@@ -4,10 +4,12 @@ import ReactMapGL, { InteractiveMap, Layer, Source } from "react-map-gl";
 import { Feature } from "../../types";
 import { LngLatBounds } from "mapbox-gl";
 
-const Map: React.FC<{
+type MapProps = {
   data: Feature[];
   onBoundsChange: (bounds: LngLatBounds) => void;
-}> = ({ data, onBoundsChange }) => {
+};
+
+const Map = ({ data, onBoundsChange }: MapProps) => {
   const ref = useRef<InteractiveMap>(null);
   const [viewport, setViewport] = useState({
     width: 800,

@@ -1,77 +1,48 @@
 import { HorizontalBarSeries, RadialChart, XAxis, XYPlot, YAxis } from "react-vis";
-import { MaterialCounts, Optional, SizeCounts } from "../../types";
-import React, { useState } from "react";
-import { percent, px } from "csx";
+import { MaterialCounts, Optional, Range, SizeCounts } from "../../types";
+import React, { useMemo, useState } from "react";
 
-import { style } from "typestyle";
+import styles from "./styles";
 
-const chartContainer = style({
-  width: percent(50),
-  padding: px(20),
-});
-
-const mb20 = style({
-  marginBottom: px(20),
-});
-
-const RadialChartWrap = style({
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-});
-
-const radialChartStyles = style({
-  position: "relative",
-  padding: "30px",
-});
-
-const barChartStyles = style({
-  width: "100%",
-  margin: "0 auto",
-});
-
-const radialChartLabel = style({
-  position: "absolute",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  top: 140,
-  right: "37%",
-  height: 80,
-  width: 90,
-  flexDirection: "column",
-  color: "#6b6b76",
-});
-
-const chartAnnotation = style({
-  display: "flex",
-  alignItems: "baseline",
-});
-
-const ChartSection: React.FC<{
+type ChartSectionProps = {
   setFilterMaterial: (filterMaterial: Optional<string>) => void;
-  setFilterSize: (filterSize: Optional<[number, number]>) => void;
+  setFilterSize: (filterSize: Optional<Range>) => void;
   materialsCounts: MaterialCounts;
   sizeCounts: SizeCounts;
-}> = ({ setFilterMaterial, setFilterSize, materialsCounts, sizeCounts }) => {
+};
+
+const ChartSection = ({
+  setFilterMaterial,
+  setFilterSize,
+  materialsCounts,
+  sizeCounts,
+}: ChartSectionProps) => {
   const [selectedRange, setRange] = useState<string>("All");
-  // Todo: useMemo
-  const materialsChartData = Object.keys(materialsCounts).map((k) => ({
-    y: k,
-    x: materialsCounts[k],
-  }));
-  const sizesChartData = Object.keys(sizeCounts).map((k) => ({
-    angle: sizeCounts[k].value,
-    label: k,
-    style: {
-      fill: sizeCounts[k].color,
-      strokeWidth: 0,
-    },
-  }));
+
+  const materialsChartData = useMemo(
+    () =>
+      Object.keys(materialsCounts).map((k) => ({
+        y: k,
+        x: materialsCounts[k],
+      })),
+    [materialsCounts]
+  );
+  const sizesChartData = useMemo(
+    () =>
+      sizeCounts.map((i) => ({
+        angle: i.value,
+        label: i.label,
+        style: {
+          fill: i.color,
+          strokeWidth: 0,
+        },
+      })),
+    [sizeCounts]
+  );
 
   return (
-    <div className={chartContainer}>
-      <div className={mb20}>Drag the map to populate results</div>
+    <div className={styles.chartContainer}>
+      <div className={styles.mb20}>Drag the map to populate results</div>
       <button onClick={() => setFilterMaterial(null)} type="button">
         Reset Materials
       </button>
@@ -82,7 +53,7 @@ const ChartSection: React.FC<{
         height={300}
         width={550}
         margin={{ left: 115, right: 10, top: 10, bottom: 40 }}
-        className={barChartStyles}
+        className={styles.barChartStyles}
       >
         <XAxis
           style={{
@@ -111,11 +82,12 @@ const ChartSection: React.FC<{
       >
         Reset Range
       </button>
-      <div className={RadialChartWrap}>
+      <div className={styles.RadialChartWrap}>
         <RadialChart
           animation
           onValueClick={(datapoint) => {
-            setFilterSize(sizeCounts[datapoint.label!].range);
+            const selected = sizeCounts.find((s) => datapoint.label === s.label);
+            selected && setFilterSize(selected.range);
             setRange(datapoint.label!);
           }}
           data={sizesChartData}
@@ -126,10 +98,10 @@ const ChartSection: React.FC<{
           padAngle={0.02}
           colorType="literal"
           labelsRadiusMultiplier={1.2}
-          className={radialChartStyles}
+          className={styles.radialChartStyles}
         >
           <>
-            <div className={radialChartLabel}>
+            <div className={styles.radialChartLabel}>
               {selectedRange}
               <br />
               <>sizes shown</>
@@ -137,17 +109,10 @@ const ChartSection: React.FC<{
           </>
         </RadialChart>
         <div>
-          {Object.keys(sizeCounts).map((k) => (
-            <div key={k} className={chartAnnotation}>
-              <span
-                style={{
-                  display: "block",
-                  width: "10px",
-                  height: "10px",
-                  backgroundColor: sizeCounts[k].color,
-                }}
-              />
-              - {k}
+          {sizeCounts.map((s) => (
+            <div key={s.label} className={styles.chartAnnotation}>
+              <span className={styles.annotation} style={{ backgroundColor: s.color }} />-{" "}
+              {s.label}
             </div>
           ))}
         </div>

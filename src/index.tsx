@@ -1,7 +1,10 @@
 import "./index.css";
 
+import { Route, BrowserRouter as Router } from "react-router-dom";
+
 import App from "./App";
 import { Provider } from "react-redux";
+import { QueryParamProvider } from "use-query-params";
 import React from "react";
 import ReactDOM from "react-dom";
 import reportWebVitals from "./reportWebVitals";
@@ -10,7 +13,11 @@ import { store } from "./store";
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <Router>
+        <QueryParamProvider ReactRouterRoute={Route}>
+          <App />
+        </QueryParamProvider>
+      </Router>
     </Provider>
   </React.StrictMode>,
   document.getElementById("root")
