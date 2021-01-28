@@ -3,7 +3,7 @@ import { Filters, MaterialCounts, SizeCounts } from "./types";
 import { RootState } from "./rootReducer";
 import { createSelector } from "reselect";
 
-const filteredFeaturesSelector = createSelector(
+export const filteredFeaturesSelector = createSelector(
   (s: RootState) => s.features.features,
   (_: RootState, filters: Filters) => filters,
   (features, filters) => {
@@ -27,7 +27,7 @@ const filteredFeaturesSelector = createSelector(
   }
 );
 
-const materialCountSelector = createSelector(filteredFeaturesSelector, (data) =>
+export const materialCountSelector = createSelector(filteredFeaturesSelector, (data) =>
   data
     .map((item) => item.properties.material)
     .reduce(
@@ -39,7 +39,7 @@ const materialCountSelector = createSelector(filteredFeaturesSelector, (data) =>
     )
 );
 
-const sizeOptions: SizeCounts = [
+export const sizeOptions: SizeCounts = [
   {
     range: [0, 50],
     color: "#1a3177",
@@ -54,7 +54,7 @@ const sizeOptions: SizeCounts = [
   },
 ];
 
-const sizeCountSelector = createSelector(filteredFeaturesSelector, (data) => {
+export const sizeCountSelector = createSelector(filteredFeaturesSelector, (data) => {
   const areas = data.map((item) => item.properties.area_);
 
   return sizeOptions.map((opt) => ({

@@ -6,12 +6,16 @@
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
+    "@types/expect-puppeteer": "^4.4.5",
     "@types/jest": "^26.0.15",
+    "@types/jest-environment-puppeteer": "^4.4.1",
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.53",
     "@types/react-dom": "^16.9.8",
     "csx": "^10.0.2",
     "mapbox-gl": "^1.13.0",
+    "puppeteer": "^5.5.0",
+    "puppeteer-core": "^5.5.0",
     "query-string": "^6.13.8",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
@@ -33,7 +37,11 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "test": "react-scripts test",
+    "e2e": "cd e2e && jest",
+    "storybook": "start-storybook -p 6006 -s public",
+    "build-storybook": "build-storybook -s public"
   },
   "eslintConfig": {
     "extends": [
@@ -54,11 +62,20 @@
     ]
   },
   "devDependencies": {
+    "@storybook/addon-actions": "^6.1.15",
+    "@storybook/addon-controls": "^6.1.15",
+    "@storybook/addon-essentials": "^6.1.15",
+    "@storybook/addon-links": "^6.1.15",
+    "@storybook/node-logger": "^6.1.15",
+    "@storybook/preset-create-react-app": "^3.1.5",
+    "@storybook/react": "^6.1.15",
+    "@types/puppeteer": "^5.4.2",
     "@types/react-map-gl": "^5.2.9",
     "@types/react-redux": "^7.1.11",
     "@types/react-router-dom": "^5.1.7",
     "@types/react-vis": "^1.11.5",
     "@types/redux-actions": "^2.6.1",
+    "jest-puppeteer": "^4.4.0",
     "prettier": "2.2.0"
   }
 }

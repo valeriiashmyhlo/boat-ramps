@@ -1,5 +1,4 @@
 import "mapbox-gl/dist/mapbox-gl.css";
-import "./App.css";
 
 import { Filters, Optional, Range } from "./types";
 import { QueryParamConfig, StringParam, useQueryParam } from "use-query-params";
@@ -20,7 +19,7 @@ const app = style({
   textAlign: "center",
 });
 
-const RangeParam: QueryParamConfig<Optional<Range>> = {
+export const RangeParam: QueryParamConfig<Optional<Range>> = {
   encode: (val) => val && `${val[0]},${val[1]}`,
   decode: (input) => {
     if (input === undefined || input === null || input instanceof Array) {
@@ -38,12 +37,7 @@ const RangeParam: QueryParamConfig<Optional<Range>> = {
   },
 };
 
-const useFilters = (): [
-  Filters,
-  (material: Optional<string>) => void,
-  (size: Optional<Range>) => void,
-  (bounds: Optional<LngLatBounds>) => void
-] => {
+export const useFilters = () => {
   const [material, setMaterial] = useQueryParam("material", StringParam);
   const [size, setSize] = useQueryParam("range", RangeParam);
   const [bounds, setBounds] = useState<Optional<LngLatBounds>>(null);
@@ -56,17 +50,45 @@ const useFilters = (): [
     [size, material, bounds]
   );
 
-  return [filters, setMaterial, setSize, setBounds];
+  return [filters, { setMaterial, setSize, setBounds }] as const;
 };
+
+type R<T> = {
+  data: Optional<T>;
+  isLoading: boolean;
+  error: Optional<Error>;
+};
+
+function useFetchApi<T>(call: () => Promise<T>): R<T> {
+  const [result, setResult] = useState<R<T>>({ data: null, isLoading: false, error: null });
+
+  useEffect(() => {
+    (async () => {
+      setResult((res) => ({ ...res, isLoading: true }));
+      try {
+        const data = await call();
+        setResult((res) => ({ ...res, data: data, error: null }));
+      } catch (e) {
+        setResult((res) => ({ ...res, error: e }));
+      } finally {
+        setResult((res) => ({ ...res, isLoading: false }));
+      }
+    })();
+  }, [call]);
+
+  return result;
+}
 
 const App = () => {
   const dispatch = useDispatch();
-  const [filters, setMaterial, setSize, setBounds] = useFilters();
+  const [filters, { setBounds, setMaterial, setSize }] = useFilters();
   const data = useTypedSelector((s) => filteredDataSelector(s, filters));
 
   useEffect(() => {
     fetchFeatures().then((features) => dispatch(setFeatures(features)));
-  }, []);
+  }, [dispatch]);
+
+  const result = useFetchApi(fetchFeatures);
 
   return (
     <div className={app}>
@@ -76,6 +98,7 @@ const App = () => {
         setFilterSize={setSize}
         materialsCounts={data.materialCount}
         sizeCounts={data.sizeCount}
+        selectedRange={filters.size}
       />
     </div>
   );

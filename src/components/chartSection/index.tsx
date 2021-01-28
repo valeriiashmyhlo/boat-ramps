@@ -1,24 +1,24 @@
 import { HorizontalBarSeries, RadialChart, XAxis, XYPlot, YAxis } from "react-vis";
 import { MaterialCounts, Optional, Range, SizeCounts } from "../../types";
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 
 import styles from "./styles";
 
-type ChartSectionProps = {
+export type ChartSectionProps = {
   setFilterMaterial: (filterMaterial: Optional<string>) => void;
   setFilterSize: (filterSize: Optional<Range>) => void;
   materialsCounts: MaterialCounts;
   sizeCounts: SizeCounts;
+  selectedRange: Optional<Range>;
 };
 
-const ChartSection = ({
+export const ChartSection = ({
   setFilterMaterial,
   setFilterSize,
   materialsCounts,
   sizeCounts,
+  selectedRange,
 }: ChartSectionProps) => {
-  const [selectedRange, setRange] = useState<string>("All");
-
   const materialsChartData = useMemo(
     () =>
       Object.keys(materialsCounts).map((k) => ({
@@ -73,13 +73,7 @@ const ChartSection = ({
           opacity={0.3}
         />
       </XYPlot>
-      <button
-        onClick={() => {
-          setFilterSize(null);
-          setRange("All");
-        }}
-        type="button"
-      >
+      <button onClick={() => setFilterSize(null)} type="button">
         Reset Range
       </button>
       <div className={styles.RadialChartWrap}>
@@ -88,7 +82,6 @@ const ChartSection = ({
           onValueClick={(datapoint) => {
             const selected = sizeCounts.find((s) => datapoint.label === s.label);
             selected && setFilterSize(selected.range);
-            setRange(datapoint.label!);
           }}
           data={sizesChartData}
           width={300}
@@ -101,10 +94,8 @@ const ChartSection = ({
           className={styles.radialChartStyles}
         >
           <>
-            <div className={styles.radialChartLabel}>
-              {selectedRange}
-              <br />
-              <>sizes shown</>
+            <div className={styles.radialChartLabel} datatest-id="radialChartLabel">
+              {`${selectedRange ?? "All"}`} sizes shown
             </div>
           </>
         </RadialChart>
@@ -120,5 +111,3 @@ const ChartSection = ({
     </div>
   );
 };
-
-export { ChartSection };

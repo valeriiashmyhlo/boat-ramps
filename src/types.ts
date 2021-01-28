@@ -1,8 +1,9 @@
 import mapboxgl, { LngLatBounds } from "mapbox-gl";
-export interface Feature extends mapboxgl.MapboxGeoJSONFeature {
+export interface Feature {
+  type: "Feature";
   geometry: mapboxgl.MapboxGeoJSONFeature["geometry"] & {
     type: "MultiPolygon";
-    coordinates: [];
+    coordinates: [number, number][][][];
   };
   properties: {
     material: string;
